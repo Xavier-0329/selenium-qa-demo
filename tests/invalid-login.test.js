@@ -1,41 +1,55 @@
-const { By, until } = require("selenium-webdriver");
 const assert = require("node:assert/strict");
+
 const LoginPage = require("../pages/LoginPage");
 const createDriver = require("../utils/driverFactory");
 const captureScreenshot = require("../utils/screenshotHelper");
 
-async function testInvalidLogin() {
-  const driver = await createDriver();
+describe("Invalid login functionality", function () {
+    this.timeout(15000);
 
-  try {
-    const loginPage = new LoginPage(driver);
+    let driver;
+    let loginPage;
 
-    await loginPage.open();
-    await loginPage.login("wrong-user", "wrong-password");
+    beforeEach(async function () {
+        driver = await createDriver();
+        loginPage = new LoginPage(driver);
+        await loginPage.open();
+    });
 
-    const errorElement = await driver.wait(
-      until.elementLocated(By.css("[data-test='error']")),
-      5000,
-    );
+    afterEach(async function () {
+        if (this.currentTest.state === "failed" && driver) {
+            try {
+                await captureScreenshot(
+                    driver,
+                    "invalid-login"
+                );
+            } catch (screenshotError) {
+                console.error(
+                    "Unable to capture failure screenshot:",
+                    screenshotError
+                );
+            }
+        }
 
-    const errorMessage = await loginPage.getErrorMessage();
+        if (driver) {
+            await driver.quit();
+        }
+    });
 
-    assert.ok(
-      errorMessage.includes("Username and password do not match"),
-      `Unexpected error message: ${errorMessage}`,
-    );
+    it("should display an error for invalid credentials", async function () {
+        await loginPage.login(
+            "wrong-user",
+            "wrong-password"
+        );
 
-    console.log("PASS: Invalid login test");
-  } catch (error) {
-    await captureScreenshot(driver, "invalid-login");
+        const errorMessage =
+            await loginPage.getErrorMessage();
 
-    throw error;
-  } finally {
-    await driver.quit();
-  }
-}
-
-testInvalidLogin().catch((error) => {
-  console.error("FAIL:", error);
-  process.exitCode = 1;
+        assert.ok(
+            errorMessage.includes(
+                "Username and password do not match"
+            ),
+            `Unexpected error message: ${errorMessage}`
+        );
+    });
 });

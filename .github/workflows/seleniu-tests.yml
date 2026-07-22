@@ -87,7 +87,7 @@ jobs:
         run: npm ci
 
       - name: Run regression tests
-        run: npm run test:regression
+        run: npm run test:report
         env:
           CI: "true"
           BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || 'https://www.saucedemo.com' }}
@@ -100,3 +100,12 @@ jobs:
           path: screenshots/
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Upload JUnit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-report
+          path: reports/junit-results.xml
+          if-no-files-found: warn
+          retention-days: 14

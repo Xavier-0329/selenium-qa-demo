@@ -1,35 +1,53 @@
 const assert = require("node:assert/strict");
+
 const LoginPage = require("../pages/LoginPage");
 const createDriver = require("../utils/driverFactory");
 const captureScreenshot = require("../utils/screenshotHelper");
 
-async function testLockedUserLogin() {
-  const driver = await createDriver();
+describe("Locked user login functionality", function () {
+    this.timeout(15000);
 
-  try {
-    const loginPage = new LoginPage(driver);
+    let driver;
+    let loginPage;
 
-    await loginPage.open();
-    await loginPage.login("locked_out_user", "secret_sauce");
+    beforeEach(async function () {
+        driver = await createDriver();
+        loginPage = new LoginPage(driver);
+        await loginPage.open();
+    });
 
-    const errorMessage = await loginPage.getErrorMessage();
+    afterEach(async function () {
+        if (this.currentTest.state === "failed" && driver) {
+            try {
+                await captureScreenshot(
+                    driver,
+                    "locked-user"
+                );
+            } catch (screenshotError) {
+                console.error(
+                    "Unable to capture failure screenshot:",
+                    screenshotError
+                );
+            }
+        }
 
-    assert.equal(
-      errorMessage,
-      "Wrong expected message"
-    );
+        if (driver) {
+            await driver.quit();
+        }
+    });
 
-    console.log("PASS: Locked user login test");
-  } catch (error) {
-    await captureScreenshot(driver, "locked-user");
+    it("should display a locked-out error message", async function () {
+        await loginPage.login(
+            "locked_out_user",
+            "secret_sauce"
+        );
 
-    throw error;
-  } finally {
-    await driver.quit();
-  }
-}
+        const errorMessage =
+            await loginPage.getErrorMessage();
 
-testLockedUserLogin().catch((error) => {
-  console.error("FAIL:", error);
-  process.exitCode = 1;
+        assert.equal(
+            errorMessage,
+            "Epic sadface: Sorry, this user has been locked out."
+        );
+    });
 });

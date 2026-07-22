@@ -1,36 +1,59 @@
 const { until } = require("selenium-webdriver");
 const assert = require("node:assert/strict");
+
 const LoginPage = require("../pages/LoginPage");
 const createDriver = require("../utils/driverFactory");
 const captureScreenshot = require("../utils/screenshotHelper");
 
-async function testValidLogin() {
-  const driver = await createDriver();
+describe("Login functionality", function () {
+    this.timeout(15000);
 
-  try {
-    const loginPage = new LoginPage(driver);
+    let driver;
+    let loginPage;
 
-    await loginPage.open();
-    await loginPage.login("standard_user", "secret_sauce");
+    beforeEach(async function () {
+        driver = await createDriver();
+        loginPage = new LoginPage(driver);
+        await loginPage.open();
+    });
 
-    await driver.wait(until.urlContains("inventory"), 5000);
+    afterEach(async function () {
+        if (this.currentTest.state === "failed" && driver) {
+            try {
+                await captureScreenshot(
+                    driver,
+                    "valid-login"
+                );
+            } catch (screenshotError) {
+                console.error(
+                    "Unable to capture failure screenshot:",
+                    screenshotError
+                );
+            }
+        }
 
-    assert.ok(
-      (await driver.getCurrentUrl()).includes("inventory"),
-      "Expected user to reach the inventroy page",
-    );
+        if (driver) {
+            await driver.quit();
+        }
+    });
 
-    console.log("PASS: Valid login test");
-  } catch (error) {
-    await captureScreenshot(driver, "valid-login");
+    it("should allow a valid user to access the inventory page", async function () {
+        await loginPage.login(
+            "standard_user",
+            "secret_sauce"
+        );
 
-    throw error;
-  } finally {
-    await driver.quit();
-  }
-}
+        await driver.wait(
+            until.urlContains("inventory"),
+            5000
+        );
 
-testValidLogin().catch((error) => {
-  console.error("FAIL:", error);
-  process.exitCode = 1;
+        const currentUrl =
+            await driver.getCurrentUrl();
+
+        assert.ok(
+            currentUrl.includes("inventory"),
+            `Expected inventory page, but received: ${currentUrl}`
+        );
+    });
 });
