@@ -7,7 +7,9 @@
     "test:valid-login": "node tests/login.test.js",
     "test:invalid-login": "node tests/invalid-login.test.js",
     "test:locked-user": "node tests/locked-user.test.js",
-    "test": "npm run test:valid-login && npm run test:invalid-login && npm run test:locked-user"
+    "test:smoke": "npm run test:valid-login",
+    "test:regression":"npm run test:valid-login && npm run test:invalid-login && npm run test:locked-user",
+    "test":"npm run test:regression"
   },
   "keywords": [],
   "author": "",

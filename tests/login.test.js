@@ -1,34 +1,36 @@
-const {until} = require("selenium-webdriver");
+const { until } = require("selenium-webdriver");
 const assert = require("node:assert/strict");
 const LoginPage = require("../pages/LoginPage");
 const createDriver = require("../utils/driverFactory");
+const captureScreenshot = require("../utils/screenshotHelper");
 
-async function testValidLogin(){
-    const driver = await createDriver();
+async function testValidLogin() {
+  const driver = await createDriver();
 
-    try{
-        const loginPage = new LoginPage(driver);
+  try {
+    const loginPage = new LoginPage(driver);
 
-        await loginPage.open();
-        await loginPage.login("standard_user","secret_sauce");
+    await loginPage.open();
+    await loginPage.login("standard_user", "secret_sauce");
 
-        await driver.wait(
-            until.urlContains("inventory"),
-            5000
-        );
+    await driver.wait(until.urlContains("inventory"), 5000);
 
-        assert.ok(
-            (await driver.getCurrentUrl()).includes("inventory"),
-            "Expected user to reach the inventroy page"
-        );
+    assert.ok(
+      (await driver.getCurrentUrl()).includes("inventory"),
+      "Expected user to reach the inventroy page",
+    );
 
-        console.log("PASS: Valid login test")
-    } finally {
-        await driver.quit();
-    }       
+    console.log("PASS: Valid login test");
+  } catch (error) {
+    await captureScreenshot(driver, "valid-login");
+
+    throw error;
+  } finally {
+    await driver.quit();
+  }
 }
 
 testValidLogin().catch((error) => {
-    console.error("FAIL:", error);
-    process.exitCode = 1;
+  console.error("FAIL:", error);
+  process.exitCode = 1;
 });
