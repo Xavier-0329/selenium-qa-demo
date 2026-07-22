@@ -13,7 +13,11 @@ async function testLockedUserLogin() {
 
     const errorMessage = await loginPage.getErrorMessage();
 
-    assert.equal(errorMessage, "This is intentionally wrong");
+    assert.equal(
+      errorMessage,
+      "Epic sadface: Sorry, this user has been locked out.",
+      `Unexpected error message: ${errorMessage}`,
+    );
 
     console.log("PASS: Locked user login test");
   } finally {
