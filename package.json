@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:valid-login": "node tests/login.test.js",
+    "test:invalid-login": "node tests/invalid-login.test.js",
+    "test:locked-user": "node tests/locked-user.test.js",
+    "test": "npm run test:valid-login && npm run test:invalid-login && npm run test:locked-user"
   },
   "keywords": [],
   "author": "",

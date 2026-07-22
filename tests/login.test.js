@@ -1,11 +1,10 @@
-const {Builder, By, until} = require("selenium-webdriver");
+const {until} = require("selenium-webdriver");
 const assert = require("node:assert/strict");
 const LoginPage = require("../pages/LoginPage");
+const createDriver = require("../utils/driverFactory");
 
 async function testValidLogin(){
-    const driver = await new Builder()
-        .forBrowser("chrome")
-        .build();
+    const driver = await createDriver();
 
     try{
         const loginPage = new LoginPage(driver);
