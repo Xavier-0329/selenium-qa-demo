@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const LoginPage = require("../pages/LoginPage");
 const createDriver = require("../utils/driverFactory");
+const captureScreenshot = require("../utils/screenshotHelper");
 
 async function testLockedUserLogin() {
   const driver = await createDriver();
@@ -15,11 +16,14 @@ async function testLockedUserLogin() {
 
     assert.equal(
       errorMessage,
-      "Epic sadface: Sorry, this user has been locked out.",
-      `Unexpected error message: ${errorMessage}`,
+      "Wrong expected message"
     );
 
     console.log("PASS: Locked user login test");
+  } catch (error) {
+    await captureScreenshot(driver, "locked-user");
+
+    throw error;
   } finally {
     await driver.quit();
   }
