@@ -4,12 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test:valid-login": "node tests/login.test.js",
-    "test:invalid-login": "node tests/invalid-login.test.js",
-    "test:locked-user": "node tests/locked-user.test.js",
-    "test:smoke": "npm run test:valid-login",
-    "test:regression":"npm run test:valid-login && npm run test:invalid-login && npm run test:locked-user",
-    "test":"npm run test:regression"
+    "test:smoke": "mocha tests/login.test.js",
+    "test:regression": "mocha \"tests/**/*.test.js\"",
+    "test:report": "mocha \"tests/**/*.test.js\" --reporter mocha-junit-reporter --reporter-options mochaFile=reports/junit-results.xml",
+    "test": "npm run test:regression"
   },
   "keywords": [],
   "author": "",
@@ -17,5 +15,9 @@
   "type": "commonjs",
   "dependencies": {
     "selenium-webdriver": "^4.46.0"
+  },
+  "devDependencies": {
+    "mocha": "^11.7.6",
+    "mocha-junit-reporter": "^2.2.1"
   }
 }
