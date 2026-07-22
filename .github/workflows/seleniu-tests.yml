@@ -27,7 +27,7 @@ on:
         type: string
 
 jobs:
-    smoke-tests:
+  smoke-tests:
     name: Smoke Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -64,7 +64,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-    regression-tests:
+  regression-tests:
     name: Regression Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
