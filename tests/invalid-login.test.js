@@ -1,32 +1,23 @@
-const {Builder, By, until} = require("selenium-webdriver");
+const {By, until} = require("selenium-webdriver");
 const assert = require("node:assert/strict");
+const LoginPage = require("../pages/LoginPage");
+const createDriver = require("../utils/driverFactory");
 
 async function testInvalidLogin(){
-    const driver = await new Builder()
-        .forBrowser("chrome")
-        .build();
+    const driver = await createDriver();
 
     try{
-        await driver.get("https://www.saucedemo.com/");
+        const loginPage = new LoginPage(driver);
 
-        await driver
-            .findElement(By.id("user-name"))
-            .sendKeys("wrong_user");
-
-        await driver
-            .findElement(By.id("password"))
-            .sendKeys("wrong_password");
-
-        await driver
-            .findElement(By.id("login-button"))
-            .click();
+        await loginPage.open();
+        await loginPage.login("wrong-user","wrong-password");
 
         const errorElement = await driver.wait(
             until.elementLocated(By.css("[data-test='error']")),
             5000
         );
 
-        const errorMessage = await errorElement.getText();
+        const errorMessage = await loginPage.getErrorMessage();
 
         assert.ok(
             errorMessage.includes("Username and password do not match"),
