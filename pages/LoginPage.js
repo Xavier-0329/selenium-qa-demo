@@ -1,41 +1,37 @@
-const {By, until} = require("selenium-webdriver");
+const { By, until } = require("selenium-webdriver");
 
-class LoginPage{
-    constructor(driver){
-        this.driver = driver;
+class LoginPage {
+  constructor(driver) {
+    this.driver = driver;
 
-        this.usernameInput = By.id("user-name");
-        this.passwordInput = By.id("password");
-        this.loginButton = By.id("login-button");
-        this.errorMessage = By.css("[data-test='error']");
-    }
+    this.usernameInput = By.id("user-name");
+    this.passwordInput = By.id("password");
+    this.loginButton = By.id("login-button");
+    this.errorMessage = By.css("[data-test='error']");
+  }
 
-    async open(){
-        await this.driver.get("https://www.saucedemo.com/");
-    }
+  async open() {
+    const baseUrl = process.env.BASE_URL || "https://www.saucedemo.com";
 
-    async login(username, password){
-        await this.driver
-            .findElement(this.usernameInput)
-            .sendKeys(username);
+    await this.driver.get(baseUrl);
+  }
 
-        await this.driver
-            .findElement(this.passwordInput)
-            .sendKeys(password);
+  async login(username, password) {
+    await this.driver.findElement(this.usernameInput).sendKeys(username);
 
-        await this.driver
-            .findElement(this.loginButton)
-            .click();
-    }
+    await this.driver.findElement(this.passwordInput).sendKeys(password);
 
-    async getErrorMessage() {
-        const element = await this.driver.wait(
-            until.elementLocated(this.errorMessage),
-            5000
-        );
+    await this.driver.findElement(this.loginButton).click();
+  }
 
-        return element.getText();
-    }
+  async getErrorMessage() {
+    const element = await this.driver.wait(
+      until.elementLocated(this.errorMessage),
+      5000,
+    );
+
+    return element.getText();
+  }
 }
 
 module.exports = LoginPage;

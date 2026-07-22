@@ -9,11 +9,32 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: Select the test suite to run
+        required: true
+        default: regression
+        type: choice
+        options:
+          - smoke
+          - regression
+
+      base_url:
+        description: Target application URL
+        required: true
+        default: https://www.saucedemo.com
+        type: string
+
 jobs:
-  smoke-tests:
+    smoke-tests:
     name: Smoke Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    if: >
+      github.event_name != 'workflow_dispatch' ||
+      inputs.test_suite == 'smoke'
 
     steps:
       - name: Checkout repository
@@ -31,7 +52,8 @@ jobs:
       - name: Run smoke tests
         run: npm run test:smoke
         env:
-          CI: true
+          CI: "true"
+          BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || 'https://www.saucedemo.com' }}
 
       - name: Upload smoke failure screenshots
         if: failure()
@@ -42,10 +64,14 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  regression-tests:
+    regression-tests:
     name: Regression Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    if: >
+      github.event_name != 'workflow_dispatch' ||
+      inputs.test_suite == 'regression'
 
     steps:
       - name: Checkout repository
@@ -63,7 +89,8 @@ jobs:
       - name: Run regression tests
         run: npm run test:regression
         env:
-          CI: true
+          CI: "true"
+          BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || 'https://www.saucedemo.com' }}
 
       - name: Upload regression failure screenshots
         if: failure()
